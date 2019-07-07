@@ -85,4 +85,4 @@ class ParserModel:
                 ts = time.monotonic()
                 fp.write(write_tree(self.decode(sentence)) + "\n")
                 if versbose:
-                    print("{} took {} seconds ".format(i, time.monotonic() - ts))
+                    print("{} of length {} took {} seconds ".format(i, len(sentence), time.monotonic() - ts))

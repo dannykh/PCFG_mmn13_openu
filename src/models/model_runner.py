@@ -15,4 +15,4 @@ if __name__ == '__main__':
         model.load_from_pickle()
     gold_corp = read_corpus(path_to_gold)
     clean_sentences = [list(map(lambda node: node.tag, get_yield(node_tree_from_sequence(sent)))) for sent in gold_corp]
-    model.write_parse(clean_sentences, "../../output/{}.txt".format(model.__class__.__name__))
+    model.write_parse(clean_sentences, "../../output/{}.txt".format(model.__class__.__name__), versbose=True)
