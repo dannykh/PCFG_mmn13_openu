@@ -1,5 +1,3 @@
-from distributed.tests.test_collections import dfs
-
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.cnf import horizontal_binarization, revert_horizontal_binarization
 from src.util.tree.node import Node
