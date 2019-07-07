@@ -1,7 +1,7 @@
 import time
 from typing import Callable, List
 
-from src.parser.grammar import ProbGrammar
+from src.parser.grammar import ProbGrammar, pickle_grammar, unpickle_grammar
 from src.parser.train import TreeTransformationPipeline, GrammarTransformationPipeline
 from src.parser.tree_parser import get_rules_from_tree
 from src.util.tree.builders import node_tree_from_sequence
@@ -43,12 +43,14 @@ class ParserModel:
         self.tree_detransformation_pipeline = tree_detransformation_pipeline
         self.grammar_transformation_pipline = grammar_transformation_pipeline
         self.decode_alg = decode_algorithm
+        self.pkl_path = "../../data/model.pkl"
 
-    def train(self, corpus: StringCorpus, verbose=True):
+    def train(self, corpus: StringCorpus, verbose=True, pickle_result=True):
         """
         Train the model on a given corpus.
         :param corpus: The corpus with whcih to train.
         :param verbose: Whether to log.
+        :param pickle_result : True if to pickle resulting grammar, false otherwise
         :return: None.
 
         The corpus is traversed sequence by sequence, a tree is generated from each sequence, on which the
@@ -67,6 +69,11 @@ class ParserModel:
                 self.grammar.add_rule(rule)
         self.grammar.generate_rule_probabilities()
         self.grammar = self.grammar_transformation_pipline.transform(self.grammar)
+        if pickle_result:
+            pickle_grammar(self.grammar, self.pkl_path)
+
+    def load_from_pickle(self):
+        self.grammar = unpickle_grammar(self.pkl_path)
 
     def decode(self, sentence: List[str]) -> Node:
         tree = self.decode_alg(self.grammar, sentence)

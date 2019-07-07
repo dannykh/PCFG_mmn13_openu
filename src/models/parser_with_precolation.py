@@ -5,7 +5,7 @@ from src.parser.train import TreeTransformationPipeline, GrammarTransformationPi
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.cnf import horizontal_binarization, revert_horizontal_binarization
 from src.util.tree.get_yield import get_yield
-from src.util.tree.treebank import read_corpus
+from src.util.tree.treebank import read_corpus, StringCorpus
 from src.util.tree.writer import write_tree
 
 tree_transformer = TreeTransformationPipeline([
@@ -24,6 +24,7 @@ class ParserWithPrecolation(ParserModel):
     def __init__(self):
         super().__init__(tree_transformer, tree_detransformer, grammar_transformer,
                          lambda gram, sent: cky(gram, sent, False))
+        self.pkl_path = "../../exps/ParserWithPrecolation.pkl"
 
 
 if __name__ == '__main__':
