@@ -82,11 +82,12 @@ def cky(grammar: ProbGrammar, sentence: List[str], include_unary=False) -> Node:
     return cky_table[n, 0, grammar.start_symbol].node
 
 
-# def expand_unary( cky_cell : Dict[MultiSymbol, CkyTableEntry], grammar : ProbGrammar):
-#     symbols_to_expand = list(cky_cell.keys())
+# def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, int, Symbol], CkyTableEntry],
+#                  grammar: ProbGrammar):
+#     symbols_to_expand = list(cky_entry.keys())
 #     while symbols_to_expand:
 #         symbol = symbols_to_expand.pop()
-#         if symbol not in cky_cell or
+#         if symbol not in cky_entry or
 
 
 def add_top(head: Node) -> Node:

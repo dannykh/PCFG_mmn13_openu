@@ -80,9 +80,12 @@ class ParserModel:
         return self.tree_detransformation_pipeline.transform(tree)
 
     def write_parse(self, corpus: List[List[str]], output_treebank_file: str, versbose=False):
+        parsed_corpus = []
+        for i, sentence in enumerate(corpus, 1):
+            ts = time.monotonic()
+            parsed_corpus.append(write_tree(self.decode(sentence)))
+            if versbose:
+                print("{} of length {} took {} seconds ".format(i, len(sentence), time.monotonic() - ts))
         with open(output_treebank_file, "w") as fp:
-            for i, sentence in enumerate(corpus, 1):
-                ts = time.monotonic()
-                fp.write(write_tree(self.decode(sentence)) + "\n")
-                if versbose:
-                    print("{} of length {} took {} seconds ".format(i, len(sentence), time.monotonic() - ts))
+            for sent in parsed_corpus:
+                fp.write(sent + "\n")
