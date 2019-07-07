@@ -5,7 +5,7 @@ from typing import Set, Dict
 from math import inf, log
 
 from src.parser.rule import Rule
-from src.parser.symbol import Terminal, NonTerminal, MultiSymbol
+from src.parser.symbol import Terminal, NonTerminal, MultiSymbol, Symbol
 
 
 class CountAndProbability:
@@ -27,7 +27,7 @@ class ProbGrammar:
         # Unary rules : Note !!! disjoint from syntactic rule map !
         self.unary_rule_map: Dict[Rule, CountAndProbability] = dict()
         # Symbol sets
-        self.start_symbols: Set[NonTerminal] = set(MultiSymbol((NonTerminal("S"),)))
+        self.start_symbol: Symbol = NonTerminal("S")
         self.terminals: Set[Terminal] = set()
         self.non_terminals: Set[NonTerminal] = set()
         # Mapping LHS to RHS and vice versa for easy computation
@@ -92,7 +92,7 @@ class ProbGrammar:
                     float(count_and_prob.count) / float(self.lhs_counts[rule.lhs]))
 
 
-def precolate_grammar(grammar: ProbGrammar):
+def precolate_grammar(grammar: ProbGrammar) -> ProbGrammar:
     """
     Collapse unit rules in the grammar.
     :param grammar: The grammar to collapse unit rules in.
@@ -139,6 +139,7 @@ def precolate_grammar(grammar: ProbGrammar):
                 # in the grammar
                 grammar[new_rule].minus_log_prob = grammar[rule].minus_log_prob + unit_rule_map[
                     unit_rule].minus_log_prob
+    return grammar
 
 
 def write_grammar_to_files(grammar: ProbGrammar, gram_path: str, lex_path: str):

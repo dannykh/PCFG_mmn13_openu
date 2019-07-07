@@ -55,3 +55,6 @@ class MultiSymbol:
 
     def __hash__(self):
         return hash("".join(map(str, self.symbol_list)))
+
+    def __getitem__(self, item: int):
+        return self.symbol_list[item]

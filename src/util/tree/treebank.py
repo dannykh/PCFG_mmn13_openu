@@ -1,9 +1,9 @@
-from typing import Iterator
+from typing import Iterator, List
 
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.node import Node
 
-StringCorpus = Iterator[str]
+StringCorpus = List[str]
 
 
 def read_corpus(corpus_path: str, limit=999999) -> StringCorpus:
@@ -13,12 +13,14 @@ def read_corpus(corpus_path: str, limit=999999) -> StringCorpus:
     :param limit : max sentences to read
     :return: An iterator of lines in the file (string)
     """
+    corp = []
     with open(corpus_path, "r") as fp:
         for line in fp:
             if limit <= 0:
                 break
             limit -= 1
-            yield line.strip()
+            corp.append(line.strip())
+    return corp
 
 
 def get_trees_from_corpus(corpus: StringCorpus) -> Iterator[Node]:

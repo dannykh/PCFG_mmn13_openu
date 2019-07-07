@@ -3,13 +3,17 @@ from typing import List
 
 class Node:
 
-    def __init__(self, tag: str):
+    def __init__(self, tag: str, children=None):
         self.tag: str = tag
-        self.children: List[Node] = []
+        self.children: List[Node] = children if children is not None else []
         # print(f'node created with tag {tag}')
 
     def add_child(self, child: "Node"):
         self.children.append(child)
+
+    def add_children(self, children: List["Node"]):
+        for child in children:
+            self.children.append(child)
 
     def remove_child(self, child: "Node"):
         self.children.remove(child)

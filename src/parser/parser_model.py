@@ -1,4 +1,5 @@
-from typing import Callable
+import time
+from typing import Callable, List
 
 from src.parser.grammar import ProbGrammar
 from src.parser.train import TreeTransformationPipeline, GrammarTransformationPipeline
@@ -6,9 +7,10 @@ from src.parser.tree_parser import get_rules_from_tree
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.node import Node
 from src.util.tree.treebank import StringCorpus
+from src.util.tree.writer import write_tree
 
 
-class PCFGModel:
+class ParserModel:
     """
     A PCFG parser model, trained on a corpus (of bracket notation sequences) using it's transformation pipelines,
     transforming trees and the generated grammar.
@@ -35,14 +37,14 @@ class PCFGModel:
     def __init__(self, tree_transformation_pipeline: TreeTransformationPipeline,
                  tree_detransformation_pipeline: TreeTransformationPipeline,
                  grammar_transformation_pipeline: GrammarTransformationPipeline,
-                 decode_algorithm: Callable[[ProbGrammar, str], Node], grammar: ProbGrammar = None):
+                 decode_algorithm: Callable[[ProbGrammar, List[str]], Node], grammar: ProbGrammar = None):
         self.grammar: ProbGrammar = ProbGrammar() if grammar is None else grammar
         self.tree_transformation_pipeline = tree_transformation_pipeline
         self.tree_detransformation_pipeline = tree_detransformation_pipeline
         self.grammar_transformation_pipline = grammar_transformation_pipeline
         self.decode_alg = decode_algorithm
 
-    def fit(self, corpus: StringCorpus, verbose=True):
+    def train(self, corpus: StringCorpus, verbose=True):
         """
         Train the model on a given corpus.
         :param corpus: The corpus with whcih to train.
@@ -66,6 +68,14 @@ class PCFGModel:
         self.grammar.generate_rule_probabilities()
         self.grammar = self.grammar_transformation_pipline.transform(self.grammar)
 
-    def decode(self, sentence: str) -> Node:
+    def decode(self, sentence: List[str]) -> Node:
         tree = self.decode_alg(self.grammar, sentence)
         return self.tree_detransformation_pipeline.transform(tree)
+
+    def write_parse(self, corpus: List[List[str]], output_treebank_file: str, versbose=False):
+        with open(output_treebank_file, "w") as fp:
+            for i, sentence in enumerate(corpus, 1):
+                ts = time.monotonic()
+                fp.write(write_tree(self.decode(sentence)) + "\n")
+                if versbose:
+                    print("{} took {} seconds ".format(i, time.monotonic() - ts))
