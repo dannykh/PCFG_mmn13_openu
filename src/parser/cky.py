@@ -95,34 +95,3 @@ def add_top(head: Node) -> Node:
     new_head.add_child(head)
     return new_head
 
-
-if __name__ == '__main__':
-    tree_transformer = TreeTransformationPipeline([
-        ("Binarize", horizontal_binarization)
-    ])
-    tree_detransformer = TreeTransformationPipeline([
-        ("add TOP", add_top),
-        ("de_binarize", revert_horizontal_binarization)
-    ])
-    grammar_transformer = GrammarTransformationPipeline([
-        ("precolation", precolate_grammar)
-    ])
-    grammar = unpickle_grammar("../../exps/model.pkl")
-    model = ParserModel(tree_transformer, tree_detransformer, grammar_transformer, cky, grammar=grammar)
-    # model.fit(read_corpus("../../data/heb-ctrees.train"))
-    # grammar = model.grammar
-    # pickle_grammar(grammar, "../../exps/model.pkl")
-    # write_grammar_to_files(grammar, "../../exps/train.gram", "../../exps/train.lex")
-    limit = 2
-    gold_corp = read_corpus("../../data/heb-ctrees.gold")
-    with open("../../output/gold_tagged_1.txt", "w") as wfp:
-        for sent in gold_corp:
-            if limit <= 0:
-                break
-            limit -= 1
-            sent = " ".join(map(lambda node: node.tag, get_yield(node_tree_from_sequence(sent))))
-            try:
-                decoded = model.decode(sent)
-                wfp.write(write_tree(decoded) + "\n")
-            except Exception as e:
-                print("FAILED {} \n {}".format(sent, e))

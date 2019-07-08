@@ -83,7 +83,12 @@ class ParserModel:
         parsed_corpus = []
         for i, sentence in enumerate(corpus, 1):
             ts = time.monotonic()
-            parsed_corpus.append(write_tree(self.decode(sentence)))
+            parsed_tree = ""
+            try:
+                parsed_tree = write_tree(self.decode(sentence))
+            except AssertionError as e:
+                print("Failed {} ".format(i))
+            parsed_corpus.append(parsed_tree)
             if versbose:
                 print("{} of length {} took {} seconds ".format(i, len(sentence), time.monotonic() - ts))
         with open(output_treebank_file, "w") as fp:
