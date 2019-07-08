@@ -2,6 +2,7 @@ import os
 import time
 
 from src.models.parser_with_precolation import ParserWithPrecolation
+from src.models.parser_without_precolation import ParserWithoutPrecolation
 from src.util.split_corpus import generate_corpus_in_bounds
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.get_yield import get_yield
@@ -10,7 +11,7 @@ from src.util.tree.treebank import read_corpus
 override = False
 
 if __name__ == '__main__':
-    model_list = [ParserWithPrecolation()]
+    model_list = [ParserWithoutPrecolation()]
     len_bounds_list = ((0, 10), (11, 20), (21, 25), (25, 30), (30, 35), (35, 40))
 
     for model in model_list:

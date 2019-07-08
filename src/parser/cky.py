@@ -43,6 +43,8 @@ def cky(grammar: ProbGrammar, sentence: List[str], include_unary=False) -> Node:
                 assert rule.is_lexical()  # Sanity check
                 node = Node(str(rule.lhs), [terminal_node])
                 cky_table[1, j, rule.lhs[0]] = CkyTableEntry(node, grammar[rule].minus_log_prob)
+                if include_unary:
+                    expand_unary((1, j, rule.lhs[0]), cky_table, grammar)
         else:
             # Initiate assuming no match in lexical rules in grammar, and therefore UNK symbol most probable
             # (See note near definition of UNK_SYMBOL )
@@ -77,21 +79,36 @@ def cky(grammar: ProbGrammar, sentence: List[str], include_unary=False) -> Node:
                                 cky_table[span_length, span_start, rule.lhs[0]].minus_log_prob:
                             node = Node(str(rule.lhs), [rhs_B_entry.node, rhs_C_entry.node])
                             cky_table[span_length, span_start, rule.lhs[0]] = CkyTableEntry(node, rule_prob)
+                            if include_unary:
+                                expand_unary((span_length, span_start, rule.lhs[0]), cky_table, grammar)
 
     assert (n, 0, grammar.start_symbol) in cky_table
     return cky_table[n, 0, grammar.start_symbol].node
 
 
-# def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, int, Symbol], CkyTableEntry],
-#                  grammar: ProbGrammar):
-#     symbols_to_expand = list(cky_entry.keys())
-#     while symbols_to_expand:
-#         symbol = symbols_to_expand.pop()
-#         if symbol not in cky_entry or
+def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, int, Symbol], CkyTableEntry],
+                 grammar: ProbGrammar):
+    if MultiSymbol((cky_entry[2],)) not in grammar.rhs_to_lhs_map:
+        return
+    # Retrieve all unary rules deriving the current entry as RHS symbol
+    rules_to_add = [rule for rule in grammar.rhs_to_lhs_map[MultiSymbol((cky_entry[2],))] if rule.is_unary()]
+    while rules_to_add:
+        rule = rules_to_add.pop()
+        assert rule.is_unary()
+        lhs_entry = (cky_entry[0], cky_entry[1], rule.lhs[0])
+        rhs_entry = (cky_entry[0], cky_entry[1], rule.rhs[0])
+        # Check if lhs not in this level in table or using current rule yields path wih better probability
+        if lhs_entry not in cky_table or cky_table[lhs_entry].minus_log_prob > grammar[rule].minus_log_prob + cky_table[
+            rhs_entry].minus_log_prob:
+            node = Node(str(rule.lhs), [cky_table[rhs_entry].node])
+            cky_table[lhs_entry] = CkyTableEntry(node,
+                                                 grammar[rule].minus_log_prob + cky_table[rhs_entry].minus_log_prob)
+            # Add all new possible unary rules for deriving the newly added cell
+            if rule.lhs in grammar.rhs_to_lhs_map:
+                rules_to_add += [new_rule for new_rule in grammar.rhs_to_lhs_map[rule.lhs] if new_rule.is_unary()]
 
 
 def add_top(head: Node) -> Node:
     new_head = Node("TOP")
     new_head.add_child(head)
     return new_head
-
