@@ -6,9 +6,9 @@ from math import inf, sqrt
 from src.parser.grammar import ProbGrammar, write_grammar_to_files, pickle_grammar, unpickle_grammar, precolate_grammar
 from src.parser.parser_model import ParserModel
 from src.parser.symbol import Symbol, MultiSymbol, Terminal, NonTerminal
-from src.parser.train import TreeTransformationPipeline, GrammarTransformationPipeline
+from src.parser.pipeline import TreeTransformationPipeline, GrammarTransformationPipeline
 from src.util.tree.builders import node_tree_from_sequence
-from src.util.tree.cnf import horizontal_binarization, revert_horizontal_binarization
+from src.util.tree.cnf import binarization, revert_binarization
 from src.util.tree.get_yield import get_yield
 from src.util.tree.node import Node
 from src.util.tree.treebank import read_corpus
@@ -82,8 +82,10 @@ def cky(grammar: ProbGrammar, sentence: List[str], include_unary=False) -> Node:
                             if include_unary:
                                 expand_unary((span_length, span_start, rule.lhs[0]), cky_table, grammar)
 
-    assert (n, 0, grammar.start_symbol) in cky_table
-    return cky_table[n, 0, grammar.start_symbol].node
+    relevant_start_syms = (ss for ss in grammar.start_symbols if (n, 0, ss) in cky_table)
+    assert relevant_start_syms
+    start_sym = next(relevant_start_syms)
+    return cky_table[n, 0, start_sym].node
 
 
 def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, int, Symbol], CkyTableEntry],

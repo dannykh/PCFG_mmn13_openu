@@ -3,7 +3,7 @@ from src.util.tree.get_yield import get_yield
 from src.util.tree.treebank import read_corpus
 
 
-def generate_corpus_in_bounds(from_length: int, to_length: int, base_fpath="../../data/heb-ctrees.gold"):
+def generate_corpus_in_bounds(from_length: int, to_length: int, base_fpath):
     """
     Generate a corpus file of a corpus from within a given corpus, with sentences limited by length in specified bounds.
     :param from_length : Minimum sentence length.

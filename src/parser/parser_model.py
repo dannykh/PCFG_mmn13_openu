@@ -2,7 +2,7 @@ import time
 from typing import Callable, List
 
 from src.parser.grammar import ProbGrammar, pickle_grammar, unpickle_grammar
-from src.parser.train import TreeTransformationPipeline, GrammarTransformationPipeline
+from src.parser.pipeline import TreeTransformationPipeline, GrammarTransformationPipeline
 from src.parser.tree_parser import get_rules_from_tree
 from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.node import Node
@@ -45,7 +45,7 @@ class ParserModel:
         self.decode_alg = decode_algorithm
         self.pkl_path = "../../data/model.pkl"
 
-    def train(self, corpus: StringCorpus, verbose=True, pickle_result=True):
+    def train(self, corpus: StringCorpus, verbose=False):
         """
         Train the model on a given corpus.
         :param corpus: The corpus with whcih to train.
@@ -62,18 +62,13 @@ class ParserModel:
         self.grammar = ProbGrammar()  # Clear grammar
         for i, sentence in enumerate(corpus, 1):
             if verbose:
-                print("{}".format(i))
+                print("Parsing #{}".format(i))
             sent_tree = node_tree_from_sequence(sentence)
             sent_tree = self.tree_transformation_pipeline.transform(sent_tree)
             for rule in get_rules_from_tree(sent_tree):
                 self.grammar.add_rule(rule)
         self.grammar.generate_rule_probabilities()
         self.grammar = self.grammar_transformation_pipline.transform(self.grammar)
-        if pickle_result:
-            pickle_grammar(self.grammar, self.pkl_path)
-
-    def load_from_pickle(self):
-        self.grammar = unpickle_grammar(self.pkl_path)
 
     def decode(self, sentence: List[str]) -> Node:
         tree = self.decode_alg(self.grammar, sentence)
@@ -81,13 +76,16 @@ class ParserModel:
 
     def write_parse(self, corpus: List[List[str]], output_treebank_file: str, versbose=False):
         with open(output_treebank_file, "wb", 0) as fp:
+            fail_count = 0
             for i, sentence in enumerate(corpus, 1):
                 ts = time.monotonic()
                 parsed_tree = ""
                 try:
                     parsed_tree = write_tree(self.decode(sentence))
-                except AssertionError as e:
+                except Exception as e:
+                    fail_count += 1
                     print("Failed {} ".format(i))
                 fp.write("{}\n".format(parsed_tree).encode("utf-8"))
                 if versbose:
-                    print("{} of length {} took {} seconds ".format(i, len(sentence), time.monotonic() - ts))
+                    print("{} of length {} took {} seconds. {} Failed. ".format(i, len(sentence), time.monotonic() - ts,
+                                                                                fail_count))

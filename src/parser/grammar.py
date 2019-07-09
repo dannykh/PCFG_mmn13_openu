@@ -1,11 +1,12 @@
 import copy
 import pickle
-from typing import Set, Dict
+from typing import Set, Dict, List
 
 from math import inf, log
 
 from src.parser.rule import Rule
 from src.parser.symbol import Terminal, NonTerminal, MultiSymbol, Symbol
+from src.util.tree.cnf import parent_separator
 
 
 class CountAndProbability:
@@ -27,7 +28,7 @@ class ProbGrammar:
         # Unary rules : Note !!! disjoint from syntactic rule map !
         self.unary_rule_map: Dict[Rule, CountAndProbability] = dict()
         # Symbol sets
-        self.start_symbol: Symbol = NonTerminal("S")
+        self.start_symbols: List[Symbol] = [NonTerminal("S"), NonTerminal("TOP{}S".format(parent_separator))]
         self.terminals: Set[Terminal] = set()
         self.non_terminals: Set[NonTerminal] = set()
         # Mapping LHS to RHS and vice versa for easy computation
