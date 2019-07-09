@@ -6,7 +6,7 @@ from math import inf, log
 
 from src.parser.rule import Rule
 from src.parser.symbol import Terminal, NonTerminal, MultiSymbol, Symbol
-from src.util.tree.cnf import parent_separator
+from src.util.tree.cnf import parent_separator, brother_separator
 
 
 class CountAndProbability:
@@ -28,7 +28,7 @@ class ProbGrammar:
         # Unary rules : Note !!! disjoint from syntactic rule map !
         self.unary_rule_map: Dict[Rule, CountAndProbability] = dict()
         # Symbol sets
-        self.start_symbols: List[Symbol] = [NonTerminal("S"), NonTerminal("TOP{}S".format(parent_separator))]
+        self.start_symbols: Set[Symbol] = set()
         self.terminals: Set[Terminal] = set()
         self.non_terminals: Set[NonTerminal] = set()
         # Mapping LHS to RHS and vice versa for easy computation
@@ -46,6 +46,10 @@ class ProbGrammar:
         self.terminals.update({sym for sym in rule.lhs.symbol_list + rule.rhs.symbol_list if type(sym) is Terminal})
         self.non_terminals.update(
             {sym for sym in rule.lhs.symbol_list + rule.rhs.symbol_list if type(sym) is NonTerminal})
+        self.start_symbols.update({sym for sym in rule.lhs.symbol_list + rule.rhs.symbol_list if type(
+            sym) is NonTerminal and sym.symbol_string.endswith(
+            "{}S".format(parent_separator)) or sym.symbol_string.endswith(
+            "{}TOP".format(parent_separator)) and brother_separator not in sym.symbol_string})
         # Find relevant rule map to update
         rules_to_update = self.get_relevant_rule_map(rule)
         # Add rule to relevant map if first seen

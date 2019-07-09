@@ -15,10 +15,7 @@ def write_tree(node: Node) -> str:
 
 
 if __name__ == '__main__':
-    sent = "(TOP (S (S (NP (NN PCIPIZM)) (ADVP (RB AINW)) (VP (VB MWGBL)) (PP (IN B) (NP (NNP AIWBH))) (PP (IN L) " \
-           "(NP (NP (NN SJWDNJIM)) (ADJP (JJ RDIQLIIM))))) (yyCM yyCM) (S (VP (VB APFR)) (VP (VB LMCWA) (NP (AT AWT)" \
-           " (NP (PRP HWA))) (PP (MOD GM) (PP (IN BIN) (NP (NP (NN XQLAIM)) (CC W) (NP (NNT PWELI) (NP (NN XRWFT))))))))" \
-           " (yyDOT yyDOT)))"
+    sent = "(TOP (FRAGQ (NP (WDT AIZH) (NP (NN PCWEIM))) (yyQM yyQM)))"
     # sent = "(TOP (S (yyQUOT yyQUOT) (S (VP (VB THIH)) (NP (NN NQMH)) (CC W) (ADVP (RB BGDWL))) (yyDOT yyDOT)))"
     head = node_tree_from_sequence(sent)
     print(sent)

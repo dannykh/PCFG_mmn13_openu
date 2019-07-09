@@ -82,10 +82,9 @@ def cky(grammar: ProbGrammar, sentence: List[str], include_unary=False) -> Node:
                             if include_unary:
                                 expand_unary((span_length, span_start, rule.lhs[0]), cky_table, grammar)
 
-    relevant_start_syms = (ss for ss in grammar.start_symbols if (n, 0, ss) in cky_table)
-    assert relevant_start_syms
-    start_sym = next(relevant_start_syms)
-    return cky_table[n, 0, start_sym].node
+    found_start_syms = [ss for ss in grammar.start_symbols if (n, 0, ss) in cky_table]
+    assert found_start_syms
+    return cky_table[n, 0, min(found_start_syms, key=lambda ss: cky_table[n, 0, ss].minus_log_prob)].node
 
 
 def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, int, Symbol], CkyTableEntry],
@@ -111,6 +110,8 @@ def expand_unary(cky_entry: Tuple[int, int, Symbol], cky_table: Dict[Tuple[int, 
 
 
 def add_top(head: Node) -> Node:
+    if head.tag == "TOP":
+        return head
     new_head = Node("TOP")
     new_head.add_child(head)
     return new_head

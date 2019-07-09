@@ -8,7 +8,7 @@ from src.util.tree.builders import node_tree_from_sequence
 from src.util.tree.get_yield import get_yield
 from src.util.tree.treebank import read_corpus
 
-override_existing_run = False
+override_existing_run = True
 train_path = "../data/heb-ctrees.train"
 gold_path = "../data/heb-ctrees.gold"
 

@@ -17,8 +17,8 @@ tree_1_vert_2_horiz_transformer = TreeTransformationPipeline([
 ])
 
 tree_detransformer = TreeTransformationPipeline([
+    ("de_binarize", revert_binarization),
     ("add TOP", add_top),
-    ("de_binarize", revert_binarization)
 ])
 grammar_no_precolation_transformer = GrammarTransformationPipeline([
 ])
